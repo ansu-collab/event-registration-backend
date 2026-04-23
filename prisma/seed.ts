@@ -50,7 +50,7 @@ async function main() {
 
     for (const eventData of EVENTS_PER_VILLAGE) {
       const event = await prisma.event.upsert({
-        where: { name_villageId: { name: eventData.name, villageId: village.id } },
+        where: { name_villageId_day: { name: eventData.name, villageId: village.id, day: null } },
         update: {},
         create: {
           name: eventData.name,
