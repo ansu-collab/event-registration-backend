@@ -20,8 +20,11 @@ export class EventsController {
 
   @Public()
   @Get()
-  findAll(@Query('villageId') villageId?: string) {
-    return this.eventsService.findAll(villageId ? parseInt(villageId) : undefined);
+  findAll(@Query('villageId') villageId?: string, @Query('day') day?: string) {
+    return this.eventsService.findAll(
+      villageId ? parseInt(villageId) : undefined,
+      day ? parseInt(day) : undefined,
+    );
   }
 
   @Public()

@@ -21,14 +21,17 @@ model Event {
   id          Int        @id @default(autoincrement())
   name        String
   description String?
+  location    String?
+  day         Int?
   villageId   Int
   village     Village    @relation(fields: [villageId], references: [id], onDelete: Cascade)
   timeSlots   TimeSlot[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  @@unique([name, villageId])
+  @@unique([name, villageId, day])
   @@index([villageId])
+  @@index([day])
 }
 
 model TimeSlot {

@@ -7,10 +7,13 @@ import { UpdateEventDto } from './dto/update-event.dto';
 export class EventsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(villageId?: number) {
+  async findAll(villageId?: number, day?: number) {
     return this.prisma.event.findMany({
-      where: villageId ? { villageId } : undefined,
-      orderBy: { name: 'asc' },
+      where: {
+        ...(villageId ? { villageId } : {}),
+        ...(day ? { day } : {}),
+      },
+      orderBy: [{ day: 'asc' }, { name: 'asc' }],
       include: {
         village: { select: { id: true, name: true } },
         timeSlots: { orderBy: { time: 'asc' } },

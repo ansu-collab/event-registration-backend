@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, MinLength, MaxLength, Min } from 'class-validator';
+import { IsString, IsInt, IsOptional, MinLength, MaxLength, Min, Max } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -10,6 +10,17 @@ export class CreateEventDto {
   @IsString()
   @MaxLength(500)
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  location?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(14)
+  day?: number;
 
   @IsInt()
   @Min(1)
