@@ -61,6 +61,13 @@ export class RegistrationsController {
   }
 
   @Public()
+  @Get('my')
+  findByGroup(@Query('groupName') groupName: string) {
+    if (!groupName?.trim()) throw new BadRequestException('groupName required');
+    return this.registrationsService.findByGroup(groupName.trim());
+  }
+
+  @Public()
   @Post()
   create(@Body() dto: CreateRegistrationDto) {
     return this.registrationsService.create(dto);

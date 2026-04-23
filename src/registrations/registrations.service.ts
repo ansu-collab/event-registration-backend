@@ -111,6 +111,22 @@ export class RegistrationsService {
     });
   }
 
+  async findByGroup(groupName: string) {
+    return this.prisma.registration.findMany({
+      where: { groupName: { equals: groupName, mode: 'insensitive' } },
+      orderBy: [{ date: 'asc' }, { timeSlot: { time: 'asc' } }],
+      include: {
+        timeSlot: {
+          include: {
+            event: {
+              include: { village: { select: { id: true, name: true } } },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async remove(id: number) {
     await this.findOne(id);
     return this.prisma.registration.delete({ where: { id } });
