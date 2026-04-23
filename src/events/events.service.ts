@@ -38,8 +38,16 @@ export class EventsService {
   async create(dto: CreateEventDto) {
     try {
       return await this.prisma.event.create({
-        data: dto,
-        include: { village: { select: { id: true, name: true } } },
+        data: {
+          ...dto,
+          timeSlots: {
+            create: [{ time: '10:00' }, { time: '14:00' }],
+          },
+        },
+        include: {
+          village: { select: { id: true, name: true } },
+          timeSlots: { orderBy: { time: 'asc' } },
+        },
       });
     } catch (e) {
       if (e.code === 'P2002') throw new ConflictException('Event name already exists in this village');
