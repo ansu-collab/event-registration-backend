@@ -11,7 +11,7 @@ export class EventsService {
     return this.prisma.event.findMany({
       where: {
         ...(villageId ? { villageId } : {}),
-        ...(day ? { day } : {}),
+        ...(day ? { OR: [{ day }, { day: null }] } : {}),
       },
       orderBy: [{ day: 'asc' }, { name: 'asc' }],
       include: {
