@@ -8,30 +8,41 @@ export class EventsService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(villageId?: number, day?: number, date?: string) {
+    const where = {
+      ...(villageId ? { villageId } : {}),
+      ...(day ? { OR: [{ day }, { day: null }] } : {}),
+    };
+    const orderBy = [{ day: 'asc' as const }, { name: 'asc' as const }];
+
+    if (!date) {
+      return this.prisma.event.findMany({
+        where,
+        orderBy,
+        include: {
+          village: { select: { id: true, name: true } },
+          timeSlots: { orderBy: { time: 'asc' } },
+          _count: { select: { timeSlots: true } },
+        },
+      });
+    }
+
     const events = await this.prisma.event.findMany({
-      where: {
-        ...(villageId ? { villageId } : {}),
-        ...(day ? { OR: [{ day }, { day: null }] } : {}),
-      },
-      orderBy: [{ day: 'asc' }, { name: 'asc' }],
+      where,
+      orderBy,
       include: {
         village: { select: { id: true, name: true } },
         timeSlots: {
           orderBy: { time: 'asc' },
-          include: date
-            ? { registrations: { where: { date: new Date(date) }, select: { id: true } } }
-            : false,
+          include: { registrations: { where: { date: new Date(date) }, select: { id: true } } },
         },
         _count: { select: { timeSlots: true } },
       },
     });
 
-    if (!date) return events;
-
     return events.map((event) => {
-      const slots = event.timeSlots as any[];
+      const slots = event.timeSlots;
       const totalSlots = slots.length;
-      const takenSlots = slots.filter((s) => s.registrations?.length > 0).length;
+      const takenSlots = slots.filter((s) => s.registrations.length > 0).length;
       return {
         ...event,
         timeSlots: slots.map(({ registrations: _r, ...s }) => s),
