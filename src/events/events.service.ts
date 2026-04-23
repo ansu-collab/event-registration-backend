@@ -7,8 +7,8 @@ import { UpdateEventDto } from './dto/update-event.dto';
 export class EventsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(villageId?: number, day?: number) {
-    return this.prisma.event.findMany({
+  async findAll(villageId?: number, day?: number, date?: string) {
+    const events = await this.prisma.event.findMany({
       where: {
         ...(villageId ? { villageId } : {}),
         ...(day ? { OR: [{ day }, { day: null }] } : {}),
@@ -16,9 +16,29 @@ export class EventsService {
       orderBy: [{ day: 'asc' }, { name: 'asc' }],
       include: {
         village: { select: { id: true, name: true } },
-        timeSlots: { orderBy: { time: 'asc' } },
+        timeSlots: {
+          orderBy: { time: 'asc' },
+          include: date
+            ? { registrations: { where: { date: new Date(date) }, select: { id: true } } }
+            : false,
+        },
         _count: { select: { timeSlots: true } },
       },
+    });
+
+    if (!date) return events;
+
+    return events.map((event) => {
+      const slots = event.timeSlots as any[];
+      const totalSlots = slots.length;
+      const takenSlots = slots.filter((s) => s.registrations?.length > 0).length;
+      return {
+        ...event,
+        timeSlots: slots.map(({ registrations: _r, ...s }) => s),
+        slotsTotal: totalSlots,
+        slotsFree: totalSlots - takenSlots,
+        slotsTaken: takenSlots,
+      };
     });
   }
 
