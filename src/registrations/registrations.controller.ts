@@ -55,16 +55,16 @@ export class RegistrationsController {
     return this.registrationsService.getCalendar(date);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.registrationsService.findOne(id);
-  }
-
   @Public()
   @Get('my')
   findByGroup(@Query('groupName') groupName: string) {
     if (!groupName?.trim()) throw new BadRequestException('groupName required');
     return this.registrationsService.findByGroup(groupName.trim());
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.registrationsService.findOne(id);
   }
 
   @Public()
